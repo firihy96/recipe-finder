@@ -12,8 +12,8 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-4">
-          <Link to="/about" className="text-lg hover:text-blue-500">
-            About Us
+          <Link to="/favorites" className="text-lg hover:text-blue-500">
+            Favorites
           </Link>
           <DarkModeToggle />
         </div>

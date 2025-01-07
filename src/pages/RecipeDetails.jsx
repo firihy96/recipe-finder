@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { getRecipeDetails } from '../services/api';
+import { addToFavorites } from '../redux/slices/favoritesSlice';
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -13,6 +16,12 @@ const RecipeDetails = () => {
     };
     fetchRecipe();
   }, [id]);
+
+  const handleAddToFavorites = () => {
+    if (recipe) {
+      dispatch(addToFavorites(recipe));
+    }
+  };
 
   if (!recipe) return <p>Loading...</p>;
 
@@ -51,6 +60,13 @@ const RecipeDetails = () => {
       >
         View Original Recipe
       </a>
+      {/* Add to Favorites Button */}
+      <button
+        onClick={handleAddToFavorites}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Add to Favorites
+      </button>
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import recipeReducer from './slices/recipeSlice';
-import themeReducer from './slices/themeSlice';
+import favoritesReducer from './slices/favoritesSlice';
+import themeReducer from './slices/themeSlice'; // Import the theme slice
 
 export const store = configureStore({
   reducer: {
-    recipes: recipeReducer, // Handles recipe-related state
-    theme: themeReducer,    // Handles dark mode state
+    recipes: recipeReducer,
+    favorites: favoritesReducer,
+    theme: themeReducer, // Add the theme slice
   },
 });
