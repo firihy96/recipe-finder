@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useDispatch, useSelector } from 'react-redux';
 import { getRecipeDetails } from '../services/api';
-import { addToFavorites } from '../redux/slices/favoritesSlice';
+import { addToFavorites, removeFromFavorites } from '../redux/slices/favoritesSlice';
+import { FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa'; // Import back arrow icon
 
 const RecipeDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); // Use navigate for the back button
   const [recipe, setRecipe] = useState(null);
   const dispatch = useDispatch();
+  const favorites = useSelector((state) => state.favorites.favorites);
+  const isFavorited = favorites.some((fav) => fav.idMeal === id);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -17,8 +21,10 @@ const RecipeDetails = () => {
     fetchRecipe();
   }, [id]);
 
-  const handleAddToFavorites = () => {
-    if (recipe) {
+  const handleToggleFavorite = () => {
+    if (isFavorited) {
+      dispatch(removeFromFavorites(id));
+    } else {
       dispatch(addToFavorites(recipe));
     }
   };
@@ -27,8 +33,29 @@ const RecipeDetails = () => {
 
   return (
     <div className="p-4">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)} // Go back to the previous page
+        className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex items-center"
+      >
+        <FaArrowLeft className="mr-2" /> Back to Favorites
+      </button>
+
       <h1 className="text-2xl font-bold mb-4">{recipe.strMeal}</h1>
       <img src={recipe.strMealThumb} alt={recipe.strMeal} className="w-full h-64 object-cover mb-4" />
+
+      {/* Heart Icon */}
+      <button
+        onClick={handleToggleFavorite}
+        className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+      >
+        {isFavorited ? (
+          <FaHeart className="text-red-500 text-xl" /> // Filled red heart
+        ) : (
+          <FaRegHeart className="text-gray-500 text-xl" /> // Outline heart
+        )}
+      </button>
+
       <h2 className="text-xl font-bold mb-2">Ingredients:</h2>
       <ul className="list-disc list-inside mb-4">
         {Array.from({ length: 20 }).map((_, i) => {
@@ -60,13 +87,6 @@ const RecipeDetails = () => {
       >
         View Original Recipe
       </a>
-      {/* Add to Favorites Button */}
-      <button
-        onClick={handleAddToFavorites}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add to Favorites
-      </button>
     </div>
   );
 };
