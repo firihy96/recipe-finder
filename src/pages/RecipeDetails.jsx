@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getRecipeDetails } from '../services/api';
 import { addToFavorites, removeFromFavorites } from '../redux/slices/favoritesSlice';
-import { FaHeart, FaRegHeart, FaArrowLeft } from 'react-icons/fa'; // Import back arrow icon
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const RecipeDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Use navigate for the back button
   const [recipe, setRecipe] = useState(null);
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.favorites.favorites);
@@ -33,14 +32,6 @@ const RecipeDetails = () => {
 
   return (
     <div className="p-4">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)} // Go back to the previous page
-        className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex items-center"
-      >
-        <FaArrowLeft className="mr-2" /> Back to Favorites
-      </button>
-
       <h1 className="text-2xl font-bold mb-4">{recipe.strMeal}</h1>
       <img src={recipe.strMealThumb} alt={recipe.strMeal} className="w-full h-64 object-cover mb-4" />
 

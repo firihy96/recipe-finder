@@ -1,18 +1,18 @@
-import { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { setSearchQuery, setRecipes, setIsLoading, setError } from '../redux/slices/recipeSlice';
-import { searchRecipes } from '../services/api';
+import { searchRecipes, fetchRecipesByCategory } from '../services/api';
 import RecipeCard from '../components/RecipeCard';
 import debounce from 'lodash.debounce';
 import { Pagination } from '@mui/material';
 
 const Home = () => {
   const dispatch = useDispatch();
+  const { categoryName } = useParams(); // Get the category name from the URL
   const { searchQuery, recipes, isLoading, error } = useSelector((state) => state.recipes);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const recipesPerPage = 9; // Limit to 9 recipes per page
+  const recipesPerPage = 9; // Number of recipes per page
 
   // Calculate the recipes to display for the current page
   const indexOfLastRecipe = currentPage * recipesPerPage;
@@ -22,21 +22,39 @@ const Home = () => {
   // Total number of pages
   const totalPages = Math.ceil(recipes.length / recipesPerPage);
 
+  // Fetch recipes by category
+  useEffect(() => {
+    if (categoryName && recipes.length === 0) { // Fetch only if recipes are not already loaded
+      dispatch(setIsLoading(true));
+      fetchRecipesByCategory(categoryName)
+        .then((results) => {
+          dispatch(setRecipes(results));
+          setCurrentPage(1); // Reset to the first page after a new category is selected
+        })
+        .catch((err) => {
+          dispatch(setError('Failed to fetch recipes. Please try again later.'));
+        })
+        .finally(() => {
+          dispatch(setIsLoading(false));
+        });
+    }
+  }, [categoryName, dispatch, recipes.length]);
+
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce(async (query) => {
       dispatch(setIsLoading(true));
-      dispatch(setError(null)); // Clear any previous errors
+      dispatch(setError(null));
       try {
         const results = await searchRecipes(query);
         dispatch(setRecipes(results));
         setCurrentPage(1); // Reset to the first page after a new search
       } catch (err) {
-        dispatch(setError('Failed to fetch recipes. Please try again later.'+err));
+        dispatch(setError('Failed to fetch recipes. Please try again later.'));
       } finally {
         dispatch(setIsLoading(false));
       }
-    }, 500), // Adjust the delay as needed
+    }, 500),
     [dispatch]
   );
 
@@ -44,14 +62,14 @@ const Home = () => {
   useEffect(() => {
     if (searchQuery) {
       debouncedSearch(searchQuery);
-    } else {
-      dispatch(setRecipes([])); // Clear results if search query is empty
+    } else if (!categoryName) {
+      dispatch(setRecipes([])); // Clear results if no search query or category is active
     }
-  }, [searchQuery, debouncedSearch, dispatch]);
+  }, [searchQuery, debouncedSearch, dispatch, categoryName]);
 
   // Handle page change
   const handlePageChange = (event, page) => {
-    setCurrentPage(page); // Update the current page
+    setCurrentPage(page);
   };
 
   return (
@@ -89,7 +107,7 @@ const Home = () => {
             ))}
           </div>
 
-          {/* Material-UI Pagination */}
+          {/* Pagination */}
           {recipes.length > recipesPerPage && (
             <div className="flex justify-center mt-8">
               <Pagination

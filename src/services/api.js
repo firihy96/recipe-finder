@@ -21,3 +21,13 @@ export const getRecipeDetails = async (id) => {
     return null;
   }
 };
+
+export const fetchRecipesByCategory = async (category) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/filter.php?c=${category}`);
+    return response.data.meals || [];
+  } catch (error) {
+    console.error('Error fetching recipes by category:', error);
+    return [];
+  }
+};
