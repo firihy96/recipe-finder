@@ -4,14 +4,15 @@ function AboutUs() {
   const isDarkMode = useSelector((state) => state.theme.isDarkMode);
 
   return (
-    <div className={`flex-1 min-h-screen p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+    <div className={`min-h-screen p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       <div className="container mx-auto max-w-4xl">
-        
+        <h1 className="text-4xl font-bold mb-6 text-center">About Us</h1>
+
         <div className="space-y-6">
           <section>
             <h2 className="text-2xl font-semibold mb-4">Welcome to Recipe Finder</h2>
             <p className="text-lg leading-relaxed">
-              Welcome to <span className="font-bold text-blue-500">Recipe Finder</span>, your ultimate platform for discovering delicious recipes from around the world! Whether you&apos;re craving a classic dish or exploring new cuisines, we&apos;re here to inspire your culinary journey.
+              Welcome to <span className="font-bold text-blue-500">Recipe Finder</span>, your ultimate platform for discovering delicious recipes from around the world! Whether you&#39;re craving a classic dish or exploring new cuisines, we&#39;re here to inspire your culinary journey.
             </p>
           </section>
 
@@ -50,7 +51,7 @@ function AboutUs() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">Thank You</h2>
             <p className="text-lg leading-relaxed">
-              Thank you for choosing Recipe Finder. We&apos;re excited to be part of your cooking journey. Happy cooking!
+              Thank you for choosing Recipe Finder. We&#39;re excited to be part of your cooking journey. Happy cooking!
             </p>
           </section>
         </div>

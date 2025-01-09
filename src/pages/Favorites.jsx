@@ -1,67 +1,86 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom'; // Import useLocation
-import { removeFromFavorites, clearFavorites } from '../redux/slices/favoritesSlice';
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { FaTrash, FaTrashAlt } from "react-icons/fa"; // Import icons from react-icons
+import { removeFromFavorites, clearFavorites } from "../redux/slices/favoritesSlice"; // Import the actions
 
 const Favorites = () => {
   const dispatch = useDispatch();
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
   const favorites = useSelector((state) => state.favorites.favorites);
-  const location = useLocation(); // Get the current location
-  const activeRecipeId = location.pathname.split('/recipe/')[1]; // Extract the active recipe ID
+  const navigate = useNavigate();
 
-  const handleRemoveFromFavorites = (recipeId) => {
-    dispatch(removeFromFavorites(recipeId));
+  const handleRemoveFavorite = (idMeal) => {
+    dispatch(removeFromFavorites(idMeal)); // Dispatch the action to remove the recipe
   };
 
   const handleClearFavorites = () => {
-    dispatch(clearFavorites());
+    dispatch(clearFavorites()); // Dispatch the action to clear all favorites
+  };
+
+  const handleRecipeClick = (idMeal) => {
+    // Navigate to the recipe details page
+    navigate(`/recipe/${idMeal}`);
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Your Favorites</h1>
+    <div className={`flex-1 min-h-screen p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="container mx-auto">
+        {/* Page Heading */}
+        <h1 className="text-3xl font-bold mb-6 text-center">Your Favorites</h1>
 
-      {/* Clear All Button */}
-      {favorites.length > 0 && (
-        <button
-          onClick={handleClearFavorites}
-          className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Clear All Favorites
-        </button>
-      )}
+        {/* Clear All Favorites Button */}
+        {favorites.length > 0 && (
+          <button
+            onClick={handleClearFavorites}
+            className="mb-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 flex items-center gap-2"
+          >
+            <FaTrashAlt /> Clear All Favorites
+          </button>
+        )}
 
-      {/* Favorites List */}
-      {favorites.length === 0 ? (
-        <p className="text-gray-600">No favorites added yet. Start adding some recipes to your favorites list!</p>
-      ) : (
-        <ul className="space-y-4">
-          {favorites.map((recipe) => (
-            <li
-              key={recipe.idMeal}
-              className={`flex items-center justify-between p-4 border rounded-lg shadow-sm ${
-                activeRecipeId === recipe.idMeal ? 'bg-gray-100' : ''
-              }`} // Highlight active recipe
-            >
-              {/* Link to Recipe Details */}
-              <Link to={`/recipe/${recipe.idMeal}`} className="flex-1">
-                <div>
-                  <h2 className="text-xl font-bold">{recipe.strMeal}</h2>
-                  <p className="text-gray-600">{recipe.strCategory}</p>
-                </div>
-              </Link>
-
-              {/* Remove Button */}
-              <button
-                onClick={() => handleRemoveFromFavorites(recipe.idMeal)}
-                className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        {/* Empty State */}
+        {favorites.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600 dark:text-gray-300">You haven&lsquo;t added any favorites yet.</p>
+          </div>
+        ) : (
+          // List Layout for Favorited Recipes
+          <div className="space-y-4">
+            {favorites.map((recipe) => (
+              <div
+                key={recipe.idMeal}
+                className={`flex items-center justify-between p-4 rounded-lg shadow ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}
               >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+                {/* Clickable Recipe Area */}
+                <div
+                  className="flex items-center gap-4 flex-1 cursor-pointer"
+                  onClick={() => handleRecipeClick(recipe.idMeal)}
+                >
+                  {/* Recipe Image */}
+                  <img
+                    src={recipe.strMealThumb}
+                    alt={recipe.strMeal}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  {/* Recipe Name */}
+                  <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {recipe.strMeal}
+                  </h2>
+                </div>
+                {/* Remove from Favorites Button */}
+                <button
+                  onClick={() => handleRemoveFavorite(recipe.idMeal)}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300 flex items-center gap-2"
+                >
+                  <FaTrash /> Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

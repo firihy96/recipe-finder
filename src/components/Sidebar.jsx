@@ -1,142 +1,169 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Typography,
-  Divider,
-  useTheme,
-  useMediaQuery,
-  CircularProgress,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-} from '@mui/icons-material';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories } from "../services/recipeService";
+import { setCategories } from "../redux/slices/recipesSlice";
+import { fetchCategoriesData } from "../redux/slices/recipesSlice";
+import { FaBars, FaTimes, FaHeart, FaInfoCircle } from "react-icons/fa"; // Import icons from react-icons
 
 const Sidebar = () => {
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [isOpen, setIsOpen] = useState(!isSmallScreen); // Open by default on large screens
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const isDarkMode = useSelector((state) => state.theme.isDarkMode);
+  const dispatch = useDispatch();
+  const isDarkMode = useSelector((state) => state.theme.isDarkMode); // Get dark mode state
+  const categories = useSelector((state) => state.recipes.categories);
+  const [isCollapsed, setIsCollapsed] = useState(false); // State to manage collapse/expand
 
-  // Fetch categories from TheMealDB API
+  // Fetch categories when the component mounts
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('https://www.themealdb.com/api/json/v1/1/categories.php');
-        setCategories(response.data.categories || []);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const getCategories = async () => {
+      const data = await fetchCategories();
+      dispatch(setCategories(data));
     };
+    getCategories();
+  }, [dispatch]);
 
-    fetchCategories();
-  }, []);
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  useEffect(() => {
+    dispatch(fetchCategoriesData());
+  }, [dispatch]);
 
   return (
-    <>
-      {/* Hamburger Menu Button (for small screens) */}
-      {isSmallScreen && (
-        <IconButton
-          color="inherit"
-          onClick={toggleSidebar}
-          sx={{ position: 'fixed', top: 16, left: 16, zIndex: 1200 }}
+    <aside
+      className={`p-4 transition-all duration-300 ${
+        isCollapsed ? "w-16" : "w-64"
+      } ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      {/* Header with Recipe Finder and Close Icon */}
+      <div className="flex justify-between items-center mb-4">
+        {/* Recipe Finder Typography (Hidden when Collapsed) */}
+        {!isCollapsed && (
+          <h1 className="text-xl font-bold">Recipe Finder</h1>
+        )}
+        {/* Toggle Button (Close Icon) */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={`hover:text-blue-500 focus:outline-none ${
+            isDarkMode ? "text-white" : "text-gray-900"
+          }`}
         >
-          <MenuIcon />
-        </IconButton>
-      )}
+          {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
+        </button>
+      </div>
 
-      {/* Sidebar Drawer */}
-      <Drawer
-        variant={isSmallScreen ? 'temporary' : 'permanent'}
-        open={isOpen}
-        onClose={toggleSidebar}
-        sx={{
-          width: isCollapsed ? 64 : 240,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: isCollapsed ? 64 : 240,
-            boxSizing: 'border-box',
-            backgroundColor: isDarkMode ? theme.palette.grey[900] : theme.palette.background.paper,
-            color: isDarkMode ? theme.palette.common.white : theme.palette.text.primary,
-          },
-        }}
-      >
-        {/* Sidebar Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: theme.spacing(2),
-          }}
-        >
-          <Typography variant="h6" noWrap>
-            {isCollapsed ? '🍳' : 'Recipe Finder'}
-          </Typography>
-          <IconButton onClick={toggleCollapse}>
-            {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </div>
-        <Divider />
+      {/* Sidebar Content (Expanded) */}
+      <div className={`${isCollapsed ? "hidden" : "block"}`}>
+        <ul>
+          {/* Favorites Link */}
+          <li className="mb-4">
+            <NavLink
+              to="/favorites"
+              className={({ isActive }) =>
+                `hover:text-blue-500 ${
+                  isActive ? "text-blue-500" : isDarkMode ? "text-white" : "text-gray-900"
+                }`
+              }
+            >
+              Favorites
+            </NavLink>
+          </li>
 
-        {/* Categories List */}
-        {isLoading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: theme.spacing(2) }}>
-            <CircularProgress />
-          </div>
-        ) : (
-          <List>
-            {categories.map((category) => (
-              <ListItem
-                button
-                key={category.strCategory}
-                component={Link}
-                to={`/category/${category.strCategory}`}
-                sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: isDarkMode ? theme.palette.grey[800] : theme.palette.grey[300],
-                  },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: isDarkMode ? theme.palette.grey[700] : theme.palette.grey[400],
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40 }}>
+          {/* About Us Link */}
+          <li>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `hover:text-blue-500 ${
+                  isActive ? "text-blue-500" : isDarkMode ? "text-white" : "text-gray-900"
+                }`
+              }
+            >
+              About Us
+            </NavLink>
+          </li>
+
+          {/* Divider */}
+          <hr className={`my-4 ${isDarkMode ? "border-gray-700" : "border-gray-300"}`} />
+
+          {/* Categories Section */}
+          <li className="mt-4">
+            <h2 className="font-bold mb-2">Categories</h2>
+            <ul>
+              {categories.map((category) => (
+                <li key={category.idCategory} className="mb-2 flex items-center">
+                  {/* Category Thumbnail */}
                   <img
                     src={category.strCategoryThumb}
                     alt={category.strCategory}
-                    style={{ width: 24, height: 24, borderRadius: '50%' }}
+                    className="w-8 h-8 rounded-full object-cover mr-2"
                   />
-                </ListItemIcon>
-                {!isCollapsed && <ListItemText primary={category.strCategory} />}
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </Drawer>
-    </>
+                  {/* Category Link */}
+                  <NavLink
+                    to={`/category/${category.strCategory}`}
+                    className={({ isActive }) =>
+                      `hover:text-blue-500 ${
+                        isActive
+                          ? "text-blue-500"
+                          : isDarkMode
+                          ? "text-white"
+                          : "text-gray-900"
+                      }`
+                    }
+                  >
+                    {category.strCategory}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      {/* Collapsed Sidebar (Icons Only, Centered) */}
+      <div className={`${isCollapsed ? "flex flex-col items-center" : "hidden"}`}>
+        <ul className="space-y-4">
+          {/* Favorites Icon */}
+          <li>
+            <NavLink
+              to="/favorites"
+              className={({ isActive }) =>
+                `hover:text-blue-500 ${
+                  isActive ? "text-blue-500" : isDarkMode ? "text-white" : "text-gray-900"
+                }`
+              }
+            >
+              <FaHeart size={24} />
+            </NavLink>
+          </li>
+
+          {/* About Us Icon */}
+          <li>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `hover:text-blue-500 ${
+                  isActive ? "text-blue-500" : isDarkMode ? "text-white" : "text-gray-900"
+                }`
+              }
+            >
+              <FaInfoCircle size={24} />
+            </NavLink>
+          </li>
+
+          {/* Category Thumbnails */}
+          {categories.map((category) => (
+            <li key={category.idCategory}>
+              <NavLink to={`/category/${category.strCategory}`}>
+                <img
+                  src={category.strCategoryThumb}
+                  alt={category.strCategory}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
   );
 };
 

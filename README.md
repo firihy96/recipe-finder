@@ -1,27 +1,8 @@
-# Recipe Finder
+# React + Vite
 
-**Recipe Finder** is a dynamic web application that allows users to search for recipes based on ingredients, meal types, or categories. Users can discover new meals, explore detailed recipes with ingredient lists and instructions, and customize their search based on dietary preferences. Built with **React** and styled using **Tailwind CSS**, this project provides a clean, modern, and user-friendly experience.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Key Features
+Currently, two official plugins are available:
 
-- **Recipe Search**: Search for recipes based on meal names, ingredients, or categories.
-- **Detailed Recipe View**: View detailed recipes with ingredients, preparation instructions, and images.
-- **Random Recipe Generator**: Get a random recipe suggestion to try something new.
-- **Responsive Design**: Fully responsive layout using Tailwind CSS, ensuring the app works seamlessly across devices.
-- **Customizable Search**: Search and filter recipes based on dietary preferences (e.g., vegetarian, gluten-free).
-
-## Technologies Used
-
-- **Frontend**: React JS
-- **Styling**: Tailwind CSS
-- **API**: TheMealDB API (for fetching recipes and meal data)
-- **Build Tool**: Vite (for fast and efficient development)
-
-## Installation
-
-Follow these steps to get the project running locally:
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/firihy96/recipe-finder.git
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh

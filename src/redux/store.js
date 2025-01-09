@@ -1,12 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
-import recipeReducer from './slices/recipeSlice';
-import favoritesReducer from './slices/favoritesSlice';
-import themeReducer from './slices/themeSlice'; // Import the theme slice
+import { configureStore } from "@reduxjs/toolkit";
+import recipesReducer from "./slices/recipesSlice";
+import favoritesReducer from "./slices/favoritesSlice";
+import paginationReducer from "./slices/paginationSlice";
+import themeReducer from "./slices/themeSlice";
 
 export const store = configureStore({
   reducer: {
-    recipes: recipeReducer,
+    recipes: recipesReducer,
     favorites: favoritesReducer,
-    theme: themeReducer, // Add the theme slice
+    pagination: paginationReducer,
+    theme: themeReducer,
   },
 });
